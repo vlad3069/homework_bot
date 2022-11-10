@@ -104,6 +104,7 @@ def main():
     """Основная логика работы бота."""
     if check_tokens() is False:
         raise TokensError()
+    logging.debug('Запуск Telegram бота')
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
     while True:
