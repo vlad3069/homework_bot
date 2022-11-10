@@ -29,8 +29,7 @@ HOMEWORK_STATUSES = {
 
 
 def send_message(bot, message):
-    """Отправляет сообщение в Telegram чат,
-    определяемый переменной окружения TELEGRAM_CHAT_ID."""
+    """Отправляет сообщение в Telegram."""
     try:
         bot.send_message(
             chat_id=TELEGRAM_CHAT_ID,
@@ -42,7 +41,7 @@ def send_message(bot, message):
 
 
 def get_api_answer(current_timestamp):
-    """Делает запрос к единственному эндпоинту API-сервиса. """
+    """Делает запрос к единственному эндпоинту API-сервиса."""
     timestamp = current_timestamp or int(time.time())
     params = {'from_date': timestamp}
     all_params = dict(url=ENDPOINT, headers=HEADERS, params=params)
@@ -72,8 +71,7 @@ def check_response(response):
 
 
 def parse_status(homework):
-    """Извлекает из информации о конкретной
-     домашней работе статус этой работы."""
+    """Извлекает из информации статус домашней работы."""
     if not isinstance(homework, dict):
         logging.error('Неверный тип данных домашней работы')
         raise DataTypeError(type(homework))
@@ -88,8 +86,7 @@ def parse_status(homework):
 
 
 def check_tokens():
-    """Проверяет доступность переменных окружения,
-     которые необходимы для работы программы."""
+    """Проверяет доступность переменных окружения."""
     tokens = PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
     names = 'PRACTICUM_TOKEN', 'TELEGRAM_TOKEN', 'TELEGRAM_CHAT_ID'
     for token, val in enumerate(tokens):
