@@ -6,7 +6,9 @@ import requests
 import telegram
 from dotenv import load_dotenv
 
-from exceptions import MessageSendingError, EndpointError, ResponseFormatError, ServiceError, TokensError, DataTypeError
+from exceptions import (MessageSendingError, EndpointError,
+                        ResponseFormatError, ServiceError,
+                        TokensError, DataTypeError)
 
 load_dotenv()
 
@@ -27,7 +29,8 @@ HOMEWORK_STATUSES = {
 
 
 def send_message(bot, message):
-    """Отправляет сообщение в Telegram чат, определяемый переменной окружения TELEGRAM_CHAT_ID."""
+    """Отправляет сообщение в Telegram чат,
+    определяемый переменной окружения TELEGRAM_CHAT_ID."""
     try:
         bot.send_message(
             chat_id=TELEGRAM_CHAT_ID,
@@ -48,7 +51,8 @@ def get_api_answer(current_timestamp):
         ENDPOINT_status_code = homework_statuses.status_code
     except requests.exceptions.RequestException as err:
         logging.error(f'Сбой в работе программы: '
-                      f'Эндпоинт {ENDPOINT} недоступен. Код ответа API: {ENDPOINT_status_code}')
+                      f'Эндпоинт {ENDPOINT} недоступен.'
+                      f' Код ответа API: {ENDPOINT_status_code}')
         raise telegram.TelegramError(f'{err}, {ENDPOINT}, {HEADERS}, {params}')
     if ENDPOINT_status_code != 200:
         raise EndpointError(ENDPOINT_status_code, **all_params)
@@ -68,7 +72,8 @@ def check_response(response):
 
 
 def parse_status(homework):
-    """Извлекает из информации о конкретной домашней работе статус этой работы."""
+    """Извлекает из информации о конкретной
+     домашней работе статус этой работы."""
     if not isinstance(homework, dict):
         logging.error('Неверный тип данных домашней работы')
         raise DataTypeError(type(homework))
@@ -83,13 +88,15 @@ def parse_status(homework):
 
 
 def check_tokens():
-    """Проверяет доступность переменных окружения, которые необходимы для работы программы."""
+    """Проверяет доступность переменных окружения,
+     которые необходимы для работы программы."""
     tokens = PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
     names = 'PRACTICUM_TOKEN', 'TELEGRAM_TOKEN', 'TELEGRAM_CHAT_ID'
     for token, val in enumerate(tokens):
         if val is None:
             logging.critical(
-                f'Отсутствует обязательная переменная окружения:{(names[token])} Программа принудительно остановлена.')
+                f'Отсутствует обязательная переменная окружения:'
+                f'{(names[token])} Программа принудительно остановлена.')
             Flag = False
         elif val is not None:
             Flag = True
