@@ -34,17 +34,18 @@ class TokensError(Exception):
     """Ошибка, если есть пустые глобальные переменные."""
 
     def __str__(self):
-        return f'Проверьте переменные окружения.'
+        return f'Отсутствует обязательная переменная окружения.'
 
 
-class DataTypeError(KeyError):
+class DataTypeError(TypeError,KeyError):
     """Ошибка, если тип данных не dict."""
     def __init__(self, *args):
         super().__init__(*args)
         self.type = args[0] if args else None
+        self.type_dop = args[1] if args else None
 
     def __str__(self):
-        return f'Неверный тип данных {self.type}, вместо "dict'
+        return f'Неверный тип данных {self.type}, вместо {self.type_dop}'
 
 
 class ResponseFormatError(Exception):
