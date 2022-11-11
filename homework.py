@@ -19,7 +19,6 @@ TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 RETRY_TIME = 600
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
-homework_status_0 = 'start'
 
 HOMEWORK_STATUSES = {
     'approved': 'Работа проверена: ревьюеру всё понравилось. Ура!',
@@ -65,20 +64,23 @@ def check_response(response):
     logging.debug('Начало проверки ответа API')
     if not isinstance(response, dict):
         raise DataTypeError(type(response), dict)
-    homeworks = response.get('homeworks')
-    if not homeworks:
+    if not ('homeworks' and 'current_date') in response:
         raise ServiceError('Список пустой')
+    homeworks = response.get('homeworks')
     if not isinstance(homeworks, list):
         raise DataTypeError(type(homeworks), list)
-    return homeworks[0]
+    if homeworks:
+        return homeworks[0]
+    else:
+        return homeworks
 
 
 def parse_status(homework):
     """Извлекает из информации статус домашней работы."""
     if not isinstance(homework, dict):
         raise DataTypeError(type(homework), dict)
-    homework_name = homework['homework_name']
-    homework_status = homework['status']
+    homework_name = homework.get('homework_name')
+    homework_status = homework.get('status')
     if not homework_name:
         raise NameError(f'{homework_status}')
     if homework_status not in dict.keys(HOMEWORK_STATUSES):
@@ -91,7 +93,6 @@ def check_tokens():
     """Проверяет доступность переменных окружения."""
     logging.debug('Начало проверки токенов')
     tokens = PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
-    names = 'PRACTICUM_TOKEN', 'TELEGRAM_TOKEN', 'TELEGRAM_CHAT_ID'
     if all(tokens):
         return True
     else:
@@ -104,6 +105,7 @@ def main():
     check_tokens()
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
+    current_timestamp = 15000000
     while True:
         try:
             response = get_api_answer(current_timestamp)
@@ -112,6 +114,7 @@ def main():
                 message = parse_status(homework)
             else:
                 logging.info('Домашек нет')
+                break
             send_message(bot, message)
             current_timestamp = response.get('current_date')
         except Exception as error:
