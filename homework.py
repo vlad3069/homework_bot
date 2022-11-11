@@ -93,19 +93,16 @@ def check_tokens():
     """Проверяет доступность переменных окружения."""
     logging.debug('Начало проверки токенов')
     tokens = PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
-    if all(tokens):
-        return True
-    else:
-        TokensError()
+    return all(tokens)
 
 
 def main():
     """Основная логика работы бота."""
     logging.debug('Запуск Telegram бота')
-    check_tokens()
+    if not check_tokens():
+        TokensError()
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
-    current_timestamp = 15000000
     while True:
         try:
             response = get_api_answer(current_timestamp)
