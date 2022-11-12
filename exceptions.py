@@ -1,8 +1,8 @@
-class ServiceError(Exception):
+class ServiceError(KeyError):
     """Ошибка отсутствия доступа по заданному эндпойнту."""
     def __init__(self, *args):
         super().__init__(*args)
-        self.msg = args[1] if args else None
+        self.msg = args[0] if args else None
 
     def __str__(self):
         return f'{self.msg}'
@@ -28,13 +28,6 @@ class MessageSendingError(Exception):
 
     def __str__(self):
         return f'{self.err}, {self.msg}'
-
-
-class TokensError(Exception):
-    """Ошибка, если есть пустые глобальные переменные."""
-
-    def __str__(self):
-        return f'Отсутствует обязательная переменная окружения.'
 
 
 class DataTypeError(TypeError,KeyError):

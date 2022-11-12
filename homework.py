@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 import time
 from http import HTTPStatus
 
@@ -8,7 +9,7 @@ import telegram
 from dotenv import load_dotenv
 
 from exceptions import (DataTypeError, EndpointError, MessageSendingError,
-                        ResponseFormatError, ServiceError, TokensError)
+                        ResponseFormatError, ServiceError)
 
 load_dotenv()
 
@@ -69,21 +70,22 @@ def check_response(response):
     homeworks = response.get('homeworks')
     if not isinstance(homeworks, list):
         raise DataTypeError(type(homeworks), list)
-    if homeworks:
-        return homeworks[0]
-    else:
-        return homeworks
+    return homeworks
 
 
 def parse_status(homework):
     """Извлекает из информации статус домашней работы."""
-    if not isinstance(homework, dict):
-        raise DataTypeError(type(homework), dict)
-    homework_name = homework.get('homework_name')
-    homework_status = homework.get('status')
+    if isinstance(homework, list):
+        homework_name = homework[0].get('homework_name')
+        homework_status = homework[0].get('status')
+    else:
+        homework_name = homework.get('homework_name')
+        homework_status = homework.get('status')
     if not homework_name:
-        raise NameError(f'{homework_status}')
-    if homework_status not in dict.keys(HOMEWORK_STATUSES):
+        raise ServiceError('homework_name нет')
+    if not homework_status:
+        raise ServiceError('homework_status нет')
+    if homework_status not in HOMEWORK_STATUSES:
         raise NameError(f'{homework_status}')
     verdict = HOMEWORK_STATUSES[homework_status]
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
@@ -100,7 +102,7 @@ def main():
     """Основная логика работы бота."""
     logging.debug('Запуск Telegram бота')
     if not check_tokens():
-        TokensError()
+        sys.exit('Отсутствует обязательная переменная окружения.')
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
     while True:
