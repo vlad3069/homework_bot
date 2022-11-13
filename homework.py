@@ -65,7 +65,7 @@ def check_response(response):
     logging.debug('Начало проверки ответа API')
     if not isinstance(response, dict):
         raise DataTypeError(type(response), dict)
-    if not ('homeworks' and 'current_date') in response:
+    if not ('homeworks' or 'current_date') in response:
         raise ServiceError('Список пустой')
     homeworks = response.get('homeworks')
     if not isinstance(homeworks, list):
@@ -75,12 +75,8 @@ def check_response(response):
 
 def parse_status(homework):
     """Извлекает из информации статус домашней работы."""
-    if isinstance(homework, list):
-        homework_name = homework[0].get('homework_name')
-        homework_status = homework[0].get('status')
-    else:
-        homework_name = homework.get('homework_name')
-        homework_status = homework.get('status')
+    homework_name = homework.get('homework_name')
+    homework_status = homework.get('status')
     if not homework_name:
         raise ServiceError('homework_name нет')
     if not homework_status:
@@ -110,7 +106,7 @@ def main():
             response = get_api_answer(current_timestamp)
             homework = check_response(response)
             if homework:
-                message = parse_status(homework)
+                message = parse_status(homework[0])
             else:
                 logging.info('Домашек нет')
                 break
